@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS nuclei-builder
+FROM golang:1.25-alpine AS nuclei-builder
 RUN apk add --no-cache git
 RUN go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
 
