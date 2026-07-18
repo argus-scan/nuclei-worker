@@ -113,8 +113,7 @@ async def _store_finding(db: asyncpg.Pool, tenant_id: str, scan_id: str | None, 
         description = f.get("info", {}).get("description", "")
         cve_id = _extract_cve(f)
         host = f.get("host", "")
-        matched = f.get("matched-at", host)
-        ip = f.get("ip", "")
+        ip = f.get("ip", "") or host
 
         asset_row = await db.fetchrow(
             "SELECT id FROM assets WHERE tenant_id = $1 AND ip::text = $2",
