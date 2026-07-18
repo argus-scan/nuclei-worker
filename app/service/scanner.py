@@ -93,7 +93,9 @@ def _run_nuclei(ips: list[str]) -> list[dict]:
             if not line:
                 continue
             try:
-                results.append(json.loads(line))
+                parsed = json.loads(line)
+                logger.debug("nuclei result type=%s keys=%s", type(parsed).__name__, list(parsed.keys()) if isinstance(parsed, dict) else parsed)
+                results.append(parsed)
             except json.JSONDecodeError:
                 continue
         return results
@@ -107,6 +109,9 @@ def _run_nuclei(ips: list[str]) -> list[dict]:
 
 async def _store_finding(db: asyncpg.Pool, tenant_id: str, scan_id: str | None, f: dict) -> bool:
     try:
+        if not isinstance(f, dict):
+            logger.warning("unexpected finding type %s: %r", type(f).__name__, f)
+            return False
         template_id = f.get("template-id", "unknown")
         info = f.get("info", {})
         if not isinstance(info, dict):
