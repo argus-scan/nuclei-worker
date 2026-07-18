@@ -14,7 +14,7 @@ async def connect(url: str) -> tuple:
     nc = await nats.connect(url)
     js = nc.jetstream()
     try:
-        await js.find_stream(name=STREAM)
+        await js.stream_info(STREAM)
     except Exception:
         await js.add_stream(name=STREAM, subjects=SUBJECTS)
     return nc, js
