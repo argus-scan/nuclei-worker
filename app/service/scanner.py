@@ -108,9 +108,12 @@ def _run_nuclei(ips: list[str]) -> list[dict]:
 async def _store_finding(db: asyncpg.Pool, tenant_id: str, scan_id: str | None, f: dict) -> bool:
     try:
         template_id = f.get("template-id", "unknown")
-        name = f.get("info", {}).get("name", template_id)
-        severity = f.get("info", {}).get("severity", "info").lower()
-        description = f.get("info", {}).get("description", "")
+        info = f.get("info", {})
+        if not isinstance(info, dict):
+            info = {}
+        name = info.get("name", template_id)
+        severity = info.get("severity", "info").lower()
+        description = info.get("description", "")
         cve_id = _extract_cve(f)
         host = f.get("host", "")
         ip = f.get("ip", "") or host
@@ -146,8 +149,14 @@ async def _store_finding(db: asyncpg.Pool, tenant_id: str, scan_id: str | None, 
 
 
 def _extract_cve(f: dict) -> str | None:
-    for ref in f.get("info", {}).get("classification", {}).get("cve-id", []):
-        if ref.upper().startswith("CVE-"):
+    info = f.get("info", {})
+    if not isinstance(info, dict):
+        return None
+    classification = info.get("classification", {})
+    if not isinstance(classification, dict):
+        return None
+    for ref in classification.get("cve-id", []):
+        if isinstance(ref, str) and ref.upper().startswith("CVE-"):
             return ref.upper()
     return None
 
