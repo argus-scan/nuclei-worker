@@ -94,7 +94,8 @@ def _run_nuclei(ips: list[str]) -> list[dict]:
                 continue
             try:
                 parsed = json.loads(line)
-                logger.debug("nuclei result type=%s keys=%s", type(parsed).__name__, list(parsed.keys()) if isinstance(parsed, dict) else parsed)
+                keys = list(parsed.keys()) if isinstance(parsed, dict) else parsed
+                logger.debug("nuclei result type=%s keys=%s", type(parsed).__name__, keys)
                 results.append(parsed)
             except json.JSONDecodeError:
                 continue
